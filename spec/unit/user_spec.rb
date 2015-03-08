@@ -1,4 +1,4 @@
-require File.expand_path('../spec_helper', File.dirname(__FILE__))
+require 'spec_helper'
 
 describe 'Users' do
 
@@ -28,7 +28,7 @@ describe 'Users' do
 
     describe "create a basic user" do
       before do
-        @user = Factory.create(:user)
+        @user = FactoryGirl.build(:user)
       end
 
       it "should check for password validation" do
@@ -39,91 +39,10 @@ describe 'Users' do
       end
     end
 
-    describe "change a LDAP password" do
-      before do
-        @user = Factory.create(:user)
-      end
-
-      it "should change password" do
-        should_be_validated @user, "secret"
-        @user.password = "changed"
-        @user.change_password!("secret")
-        should_be_validated @user, "changed", "password was not changed properly on the LDAP sevrer"
-      end
-
-      it "should not allow to change password if setting is false" do
-        should_be_validated @user, "secret"
-        ::Devise.ldap_update_password = false
-        @user.reset_password!("wrong_secret", "wrong_secret")
-        should_not_be_validated @user, "wrong_secret"
-        should_be_validated @user, "secret"
-      end
-    end
-
-    describe "create new local user if user is in LDAP" do
-
-      before do
-        assert(User.all.blank?, "There shouldn't be any users in the database")
-      end
-
-      it "should not create user in the database" do
-        @user = User.find_for_ldap_authentication(:email => "example.user@test.com", :password => "secret")
-        assert(User.all.blank?)
-      end
-
-      describe "creating users is enabled" do
-        before do
-          ::Devise.ldap_create_user = true
-        end
-
-        it "should create a user in the database" do
-          @user = User.find_for_ldap_authentication(:email => "example.user@test.com", :password => "secret")
-          assert_equal(User.all.size, 1)
-          User.all.collect(&:email).should include("example.user@test.com")
-        end
-
-        it "should not create a user in the database if the password is wrong_secret" do
-          @user = User.find_for_ldap_authentication(:email => "example.user", :password => "wrong_secret")
-          assert(User.all.blank?, "There's users in the database")
-        end
-
-        it "should not create a user if the user is not in LDAP" do
-          @user = User.find_for_ldap_authentication(:email => "wrong_secret.user@test.com", :password => "wrong_secret")
-          assert(User.all.blank?, "There's users in the database")
-        end
-
-        it "should create a user in the database if case insensitivity does not matter" do
-          ::Devise.case_insensitive_keys = []
-          @user = Factory.create(:user)
-
-          expect do
-            User.find_for_ldap_authentication(:email => "EXAMPLE.user@test.com", :password => "secret")
-          end.to change { User.count }.by(1)
-        end
-
-        it "should not create a user in the database if case insensitivity matters" do
-          ::Devise.case_insensitive_keys = [:email]
-          @user = Factory.create(:user)
-
-          expect do
-            User.find_for_ldap_authentication(:email => "EXAMPLE.user@test.com", :password => "secret")
-          end.to_not change { User.count }
-        end
-
-        it "should create a user with downcased email in the database if case insensitivity matters" do
-          ::Devise.case_insensitive_keys = [:email]
-
-          @user = User.find_for_ldap_authentication(:email => "EXAMPLE.user@test.com", :password => "secret")
-          User.all.collect(&:email).should include("example.user@test.com")
-        end
-      end
-
-    end
-
     describe "use groups for authorization" do
       before do
-        @admin = Factory.create(:admin)
-        @user = Factory.create(:user)
+        @admin = FactoryGirl.build(:admin)
+        @user = FactoryGirl.build(:user)
         ::Devise.authentication_keys = [:email]
         ::Devise.ldap_check_group_membership = true
       end
@@ -133,32 +52,32 @@ describe 'Users' do
       end
 
       it "should admin should have the proper groups set" do
-        @admin.ldap_groups.should include('cn=admins,ou=groups,dc=test,dc=com')
+        expect(@admin.ldap_groups).to include('cn=admins,ou=groups,dc=test,dc=com')
       end
 
       it "should user should not be allowed in" do
         should_not_be_validated @user, "secret"
       end
     end
-    
+
     describe "check group membership" do
       before do
-        @admin = Factory.create(:admin)
-        @user = Factory.create(:user)
+        @admin = FactoryGirl.build(:admin)
+        @user = FactoryGirl.build(:user)
       end
-      
+
       it "should return true for admin being in the admins group" do
         assert_equal true, @admin.in_ldap_group?('cn=admins,ou=groups,dc=test,dc=com')
       end
-      
+
       it "should return false for admin being in the admins group using the 'foobar' group attribute" do
         assert_equal false, @admin.in_ldap_group?('cn=admins,ou=groups,dc=test,dc=com', 'foobar')
       end
-      
+
       it "should return true for user being in the users group" do
         assert_equal true, @user.in_ldap_group?('cn=users,ou=groups,dc=test,dc=com')
-      end   
-      
+      end
+
       it "should return false for user being in the admins group" do
         assert_equal false, @user.in_ldap_group?('cn=admins,ou=groups,dc=test,dc=com')
       end
@@ -170,7 +89,7 @@ describe 'Users' do
 
     describe "check group membership w/out admin bind" do
       before do
-        @user = Factory.create(:user)
+        @user = FactoryGirl.build(:user)
         ::Devise.ldap_check_group_membership_without_admin = true
       end
 
@@ -201,8 +120,8 @@ describe 'Users' do
 
     describe "use role attribute for authorization" do
       before do
-        @admin = Factory.create(:admin)
-        @user = Factory.create(:user)
+        @admin = FactoryGirl.build(:admin)
+        @user = FactoryGirl.build(:user)
         ::Devise.ldap_check_attributes = true
       end
 
@@ -217,8 +136,8 @@ describe 'Users' do
 
     describe "use admin setting to bind" do
       before do
-        @admin = Factory.create(:admin)
-        @user = Factory.create(:user)
+        @admin = FactoryGirl.build(:admin)
+        @user = FactoryGirl.build(:user)
         ::Devise.ldap_use_admin_to_bind = true
       end
 
@@ -227,56 +146,6 @@ describe 'Users' do
       end
     end
 
-  end
-
-  describe "use uid for login" do
-    before do
-      default_devise_settings!
-      reset_ldap_server!
-      ::Devise.ldap_config = "#{Rails.root}/config/#{"ssl_" if ENV["LDAP_SSL"]}ldap_with_uid.yml"
-      ::Devise.authentication_keys = [:uid]
-    end
-
-    describe "description" do
-      before do
-        @admin = Factory.create(:admin)
-        @user = Factory.create(:user, :uid => "example_user")
-      end
-
-      it "should be able to authenticate using uid" do
-        should_be_validated @user, "secret"
-        should_not_be_validated @admin, "admin_secret"
-      end
-    end
-
-    describe "create user" do
-      before do
-        ::Devise.ldap_create_user = true
-      end
-
-      it "should create a user in the database" do
-        @user = User.find_for_ldap_authentication(:uid => "example_user", :password => "secret")
-        assert_equal(User.all.size, 1)
-        User.all.collect(&:uid).should include("example_user")
-      end
-
-      it "should call ldap_before_save hooks" do
-        User.class_eval do
-          def ldap_before_save
-            @foobar = 'foobar'
-          end
-        end
-        user = User.find_for_ldap_authentication(:uid => "example_user", :password => "secret")
-        assert_equal 'foobar', user.instance_variable_get(:"@foobar")
-        User.class_eval do
-          undef ldap_before_save
-        end
-      end
-
-      it "should not call ldap_before_save hook if not defined" do
-        should_be_validated Factory.create(:user, :uid => "example_user"), "secret"
-      end
-    end
   end
 
   describe "using ERB in the config file" do
@@ -288,8 +157,8 @@ describe 'Users' do
 
     describe "authenticate" do
       before do
-        @admin = Factory.create(:admin)
-        @user = Factory.create(:user)
+        @admin = FactoryGirl.build(:admin)
+        @user = FactoryGirl.build(:user)
       end
 
       it "should be able to authenticate" do
@@ -318,7 +187,7 @@ describe 'Users' do
       ::Devise.ldap_auth_username_builder = Proc.new() do |attribute, login, ldap|
         "#{attribute}=#{login},ou=others,dc=test,dc=com"
       end
-      @other = Factory.create(:other)
+      @other = FactoryGirl.build(:other)
     end
 
     it "should be able to authenticate" do

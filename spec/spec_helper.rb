@@ -2,8 +2,8 @@ ENV["RAILS_ENV"] = "test"
 
 require File.expand_path("rails_app/config/environment.rb",  File.dirname(__FILE__))
 require 'rspec/rails'
-require 'rspec/autorun'
 require 'factory_girl' # not sure why this is not already required
+require 'factory_girl_rails'
 
 # Rails 4.1 and RSpec are a bit on different pages on who should run migrations
 # on the test db and when.

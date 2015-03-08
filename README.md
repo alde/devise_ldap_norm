@@ -1,17 +1,13 @@
-Devise LDAP NO ORM
-===========================
+# Devise LDAP NO ORM
 
-Why this fork?
---------------
+## Why this fork?
 This is a fork of https://github.com/cschiewek/devise_ldap_authenticatable, to get away from the need to have an ActiveRecord backing.
 
-Prerequisites
--------------
+## Prerequisites
  * devise ~> 3.0.0 (which requires rails ~> 4.0)
  * net-ldap ~> 0.3.1
 
-Usage
------
+## Usage
 In the Gemfile for your application:
 
     gem "devise_ldap_norm"
@@ -21,14 +17,14 @@ To get the latest version, pull directly from github instead of the gem:
     gem "devise_ldap_norm", :git => "git://github.com/alde/devise_ldap_norm.git"
 
 
-Setup
------
-Run the rails generators for devise (please check the [devise](http://github.com/plataformatec/devise) documents for further instructions)
+## Setup
+### Run the rails generators for devise
+(please check the [devise](http://github.com/plataformatec/devise) documents for further instructions)
 
     rails generate devise:install
     rails generate devise MODEL_NAME
 
-Run the rails generator for `devise_ldap_norm`
+### Run the rails generator for `devise_ldap_norm`
 
     rails generate devise_ldap_norm:install [options]
 
@@ -44,6 +40,51 @@ Options:
                                # Default: true
     [--advanced]               # Add advanced config options to the devise initializer
 
+### Modify your user model
+Since there is no longer a need for ActiveRecord, modify the User model.
+
+Sample model:
+
+
+    class User
+      include ActiveModel::Validations
+      extend ActiveModel::Callbacks
+      extend Devise::Models
+
+      define_model_callbacks :validation
+
+      devise :ldap_norm, :rememberable
+
+      def initialize (id)
+        @data = HashWithIndifferentAccess.new
+        @id = id
+      end
+
+      def []=(key, value)
+        @data[key] = value
+      end
+
+      def [](key)
+        @data[key]
+      end
+
+      def email
+        @data['email']
+      end
+
+      def email=(email)
+        @data['email'] = email
+      end
+
+      def new_record?
+        false
+      end
+
+      def persisted?
+        false
+      end
+    end
+
 
 Development guide
 ------------
@@ -51,10 +92,6 @@ Development guide
 Devise LDAP Authenticatable uses a running OpenLDAP server to do automated acceptance tests. You'll need the executables `slapd`, `ldapadd`, and `ldapmodify`.
 
 On OS X, this is available out of the box.
-
-On Ubuntu, you can install OpenLDAP with `sudo apt-get install slapd ldap-utils`. If slapd runs under AppArmor, add an exception like this to `/etc/apparmor.d/local/usr.sbin.slapd` to let slapd read our configs.
-
-    /path/to/devise_ldap_norm/spec/ldap/** rw,$
 
 To start hacking on `devise_ldap_norm`, clone the github repository, start the test LDAP server, and run the rake test task:
 
@@ -65,7 +102,6 @@ To start hacking on `devise_ldap_norm`, clone the github repository, start the t
     # in a separate console or backgrounded
     ./spec/ldap/run-server
 
-    bundle exec rake db:migrate # first time only
     bundle exec rake spec
 
 References
