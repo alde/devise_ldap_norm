@@ -1,4 +1,6 @@
-# Devise LDAP NO ORM
+# Devise LDAP No ORM
+
+!!! This is NOT ready for use. I haven't even begun to poke at the security aspects.
 
 ## Why this fork?
 This is a fork of https://github.com/cschiewek/devise_ldap_authenticatable, to get away from the need to have an ActiveRecord backing.
