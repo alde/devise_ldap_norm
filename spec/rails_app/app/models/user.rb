@@ -27,12 +27,4 @@ class User
   def email=(email)
     @data['email'] = email
   end
-
-  def new_record?
-    false
-  end
-
-  def persisted?
-    false
-  end
 end

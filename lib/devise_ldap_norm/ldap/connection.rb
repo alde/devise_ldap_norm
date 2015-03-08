@@ -24,7 +24,7 @@ module Devise
 
         @group_base = ldap_config["group_base"]
         @check_group_membership = ldap_config.has_key?("check_group_membership") ? ldap_config["check_group_membership"] : ::Devise.ldap_check_group_membership
-        @required_groups = ldap_config["required_groups"]
+        @allowed_groups = ldap_config["allowed_groups"].split(' ')
         @required_attributes = ldap_config["require_attribute"]
 
         @ldap.auth ldap_config["admin_user"], ldap_config["admin_password"] if params[:admin]
@@ -88,8 +88,8 @@ module Devise
         if !authenticated?
           DeviseLdapNorm::Logger.send("Not authorized because not authenticated.")
           return false
-        elsif !in_required_groups?
-          DeviseLdapNorm::Logger.send("Not authorized because not in required groups.")
+        elsif !in_allowed_groups?
+          DeviseLdapNorm::Logger.send("Not authorized because not in allowed groups.")
           return false
         elsif !has_required_attribute?
           DeviseLdapNorm::Logger.send("Not authorized because does not have required attribute.")
@@ -103,8 +103,25 @@ module Devise
         update_ldap(:userpassword => Net::LDAP::Password.generate(:sha, @new_password))
       end
 
+      def in_allowed_groups?
+        return true unless @check_group_membership
+
+        memberships = self.ldap_param_value("memberOf")
+
+        return false if memberships.blank?
+
+        memberships.map! do |g|
+          m = g.match(/cn=([A-Za-z0-9\._-]+),./)
+          m[1] unless m.nil?
+        end
+
+        # array bisect to determine if any of the groups in groups is allowed access
+        (memberships & allowed_groups).length > 0
+      end
+
       def in_required_groups?
         return true unless @check_group_membership
+
 
         ## FIXME set errors here, the ldap.yml isn't set properly.
         return false if @required_groups.nil?

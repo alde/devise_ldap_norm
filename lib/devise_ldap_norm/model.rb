@@ -12,6 +12,18 @@ module Devise
     module LdapNorm
       extend ActiveSupport::Concern
 
+      # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      # Callbacks defaulted to get past ActiveRecord related checks from Devise
+      # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      def new_record?
+        false
+      end
+
+      def persisted?
+        false
+      end
+      # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
       included do
         attr_reader :current_password, :password
         attr_accessor :password_confirmation
@@ -86,7 +98,6 @@ module Devise
 
 
       module ClassMethods
-        # Find a user for ldap authentication.
 
         def serialize_from_session(id, data={})
           resource = self.new(id)
