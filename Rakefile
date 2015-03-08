@@ -4,7 +4,7 @@ require 'rdoc/task'
 desc 'Default: run test suite.'
 task :default => :spec
 
-desc 'Generate documentation for the devise_ldap_authenticatable plugin.'
+desc 'Generate documentation for the devise_ldap_norm plugin.'
 Rake::RDocTask.new(:rdoc) do |rdoc|
   rdoc.rdoc_dir = 'rdoc'
   rdoc.title    = 'DeviseLDAPAuthenticatable'

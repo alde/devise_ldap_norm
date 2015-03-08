@@ -45,7 +45,7 @@ module Devise
 
       def dn
         @dn ||= begin
-          DeviseLdapAuthenticatable::Logger.send("LDAP dn lookup: #{@attribute}=#{@login}")
+          DeviseLdapNorm::Logger.send("LDAP dn lookup: #{@attribute}=#{@login}")
           ldap_entry = search_for_login
           if ldap_entry.nil?
             @ldap_auth_username_builder.call(@attribute,@login,@ldap)
@@ -61,14 +61,14 @@ module Devise
         if ldap_entry
           unless ldap_entry[param].empty?
             value = ldap_entry.send(param)
-            DeviseLdapAuthenticatable::Logger.send("Requested param #{param} has value #{value}")
+            DeviseLdapNorm::Logger.send("Requested param #{param} has value #{value}")
             value
           else
-            DeviseLdapAuthenticatable::Logger.send("Requested param #{param} does not exist")
+            DeviseLdapNorm::Logger.send("Requested param #{param} does not exist")
             value = nil
           end
         else
-          DeviseLdapAuthenticatable::Logger.send("Requested ldap entry does not exist")
+          DeviseLdapNorm::Logger.send("Requested ldap entry does not exist")
           value = nil
         end
       end
@@ -84,15 +84,15 @@ module Devise
       end
 
       def authorized?
-        DeviseLdapAuthenticatable::Logger.send("Authorizing user #{dn}")
+        DeviseLdapNorm::Logger.send("Authorizing user #{dn}")
         if !authenticated?
-          DeviseLdapAuthenticatable::Logger.send("Not authorized because not authenticated.")
+          DeviseLdapNorm::Logger.send("Not authorized because not authenticated.")
           return false
         elsif !in_required_groups?
-          DeviseLdapAuthenticatable::Logger.send("Not authorized because not in required groups.")
+          DeviseLdapNorm::Logger.send("Not authorized because not in required groups.")
           return false
         elsif !has_required_attribute?
-          DeviseLdapAuthenticatable::Logger.send("Not authorized because does not have required attribute.")
+          DeviseLdapNorm::Logger.send("Not authorized because does not have required attribute.")
           return false
         else
           return true
@@ -143,7 +143,7 @@ module Devise
         end
 
         unless in_group
-          DeviseLdapAuthenticatable::Logger.send("User #{dn} is not in group: #{group_name}")
+          DeviseLdapNorm::Logger.send("User #{dn} is not in group: #{group_name}")
         end
 
         return in_group
@@ -158,7 +158,7 @@ module Devise
 
         @required_attributes.each do |key,val|
           unless user[key].include? val
-            DeviseLdapAuthenticatable::Logger.send("User #{dn} did not match attribute #{key}:#{val}")
+            DeviseLdapNorm::Logger.send("User #{dn} did not match attribute #{key}:#{val}")
             return false
           end
         end
@@ -169,7 +169,7 @@ module Devise
       def user_groups
         admin_ldap = Connection.admin
 
-        DeviseLdapAuthenticatable::Logger.send("Getting groups for #{dn}")
+        DeviseLdapNorm::Logger.send("Getting groups for #{dn}")
         filter = Net::LDAP::Filter.eq("uniqueMember", dn)
         admin_ldap.search(:filter => filter, :base => @group_base).collect(&:dn)
       end
@@ -183,12 +183,12 @@ module Devise
       # @return [Object] the LDAP entry found; nil if not found
       def search_for_login
         @login_ldap_entry ||= begin
-          DeviseLdapAuthenticatable::Logger.send("LDAP search for login: #{@attribute}=#{@login}")
+          DeviseLdapNorm::Logger.send("LDAP search for login: #{@attribute}=#{@login}")
           filter = Net::LDAP::Filter.eq(@attribute.to_s, @login.to_s)
           ldap_entry = nil
           match_count = 0
           @ldap.search(:filter => filter) {|entry| ldap_entry = entry; match_count+=1}
-          DeviseLdapAuthenticatable::Logger.send("LDAP search yielded #{match_count} matches")
+          DeviseLdapNorm::Logger.send("LDAP search yielded #{match_count} matches")
           ldap_entry
         end
       end
@@ -199,15 +199,15 @@ module Devise
         ldap = Connection.new(:admin => true).ldap
 
         unless ldap.bind
-          DeviseLdapAuthenticatable::Logger.send("Cannot bind to admin LDAP user")
-          raise DeviseLdapAuthenticatable::LdapException, "Cannot connect to admin LDAP user"
+          DeviseLdapNorm::Logger.send("Cannot bind to admin LDAP user")
+          raise DeviseLdapNorm::LdapException, "Cannot connect to admin LDAP user"
         end
 
         return ldap
       end
 
       def find_ldap_user(ldap)
-        DeviseLdapAuthenticatable::Logger.send("Finding user: #{dn}")
+        DeviseLdapNorm::Logger.send("Finding user: #{dn}")
         ldap.search(:base => dn, :scope => Net::LDAP::SearchScope_BaseObject).try(:first)
       end
 
@@ -228,7 +228,7 @@ module Devise
           privileged_ldap = self.ldap
         end
 
-        DeviseLdapAuthenticatable::Logger.send("Modifying user #{dn}")
+        DeviseLdapNorm::Logger.send("Modifying user #{dn}")
         privileged_ldap.modify(:dn => dn, :operations => operations)
       end
     end

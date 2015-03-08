@@ -1,4 +1,4 @@
-require 'devise_ldap_authenticatable/strategy'
+require 'devise_ldap_norm/strategy'
 
 module Devise
   module Models
@@ -9,7 +9,7 @@ module Devise
     #    User.authenticate('email@test.com', 'password123')  # returns authenticated user or nil
     #    User.find(1).valid_password?('password123')         # returns true/false
     #
-    module LdapAuthenticatable
+    module LdapNorm
       extend ActiveSupport::Concern
 
       included do
@@ -27,7 +27,7 @@ module Devise
 
         Devise::LDAP::Adapter.update_own_password(login_with, @password, current_password)
       end
-      
+
       def reset_password!(new_password, new_password_confirmation)
         if new_password == new_password_confirmation && ::Devise.ldap_update_password
           Devise::LDAP::Adapter.update_password(login_with, new_password)
@@ -39,7 +39,7 @@ module Devise
       def password=(new_password)
         @password = new_password
         if defined?(password_digest) && @password.present? && respond_to?(:encrypted_password=)
-          self.encrypted_password = password_digest(@password) 
+          self.encrypted_password = password_digest(@password)
         end
       end
 
@@ -87,6 +87,17 @@ module Devise
 
       module ClassMethods
         # Find a user for ldap authentication.
+
+        def serialize_from_session(id, data={})
+          resource = self.new(id)
+          resource.data = data
+          resource
+        end
+
+        def serialize_into_session(record)
+          [record.id, record.data]
+        end
+
         def find_for_ldap_authentication(attributes={})
           auth_key = self.authentication_keys.first
           return nil unless attributes[auth_key].present?
@@ -94,10 +105,8 @@ module Devise
           auth_key_value = (self.case_insensitive_keys || []).include?(auth_key) ? attributes[auth_key].downcase : attributes[auth_key]
 	  auth_key_value = (self.strip_whitespace_keys || []).include?(auth_key) ? auth_key_value.strip : auth_key_value
 
-          resource = where(auth_key => auth_key_value).first
-
-          if resource.blank? && ::Devise.ldap_create_user
-            resource = new
+          if ::Devise.ldap_create_user
+            resource = new(SecureRandom.uuid)
             resource[auth_key] = auth_key_value
             resource.password = attributes[:password]
           end

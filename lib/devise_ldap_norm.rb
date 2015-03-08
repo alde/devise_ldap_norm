@@ -1,38 +1,38 @@
 # encoding: utf-8
 require 'devise'
 
-require 'devise_ldap_authenticatable/exception'
-require 'devise_ldap_authenticatable/logger'
-require 'devise_ldap_authenticatable/ldap/adapter'
-require 'devise_ldap_authenticatable/ldap/connection'
+require 'devise_ldap_norm/exception'
+require 'devise_ldap_norm/logger'
+require 'devise_ldap_norm/ldap/adapter'
+require 'devise_ldap_norm/ldap/connection'
 
 # Get ldap information from config/ldap.yml now
 module Devise
   # Allow logging
   mattr_accessor :ldap_logger
   @@ldap_logger = true
-  
+
   # Add valid users to database
   mattr_accessor :ldap_create_user
   @@ldap_create_user = false
-  
+
   # A path to YAML config file or a Proc that returns a
   # configuration hash
   mattr_accessor :ldap_config
   # @@ldap_config = "#{Rails.root}/config/ldap.yml"
-  
+
   mattr_accessor :ldap_update_password
   @@ldap_update_password = true
-  
+
   mattr_accessor :ldap_check_group_membership
   @@ldap_check_group_membership = false
-  
+
   mattr_accessor :ldap_check_attributes
   @@ldap_check_role_attribute = false
-  
+
   mattr_accessor :ldap_use_admin_to_bind
   @@ldap_use_admin_to_bind = false
-  
+
   mattr_accessor :ldap_auth_username_builder
   @@ldap_auth_username_builder = Proc.new() {|attribute, login, ldap| "#{attribute}=#{login},#{ldap.base}" }
 
@@ -40,10 +40,10 @@ module Devise
   @@ldap_ad_group_check = false
 end
 
-# Add ldap_authenticatable strategy to defaults.
+# Add ldap_norm strategy to defaults.
 #
-Devise.add_module(:ldap_authenticatable,
+Devise.add_module(:ldap_norm,
                   :route => :session, ## This will add the routes, rather than in the routes.rb
                   :strategy   => true,
                   :controller => :sessions,
-                  :model  => 'devise_ldap_authenticatable/model')
+                  :model  => 'devise_ldap_norm/model')

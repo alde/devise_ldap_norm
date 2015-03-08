@@ -1,14 +1,14 @@
 # -*- encoding: utf-8 -*-
 $:.push File.expand_path("../lib", __FILE__)
-require "devise_ldap_authenticatable/version"
+require "devise_ldap_norm/version"
 
 Gem::Specification.new do |s|
-  s.name     = 'devise_ldap_authenticatable'
-  s.version  = DeviseLdapAuthenticatable::VERSION.dup
+  s.name     = 'devise_ldap_norm'
+  s.version  = DeviseLdapNorm::VERSION.dup
   s.platform = Gem::Platform::RUBY
   s.summary  = 'Devise extension to allow authentication via LDAP'
   s.email = 'curtis.schiewek@gmail.com'
-  s.homepage = 'https://github.com/cschiewek/devise_ldap_authenticatable'
+  s.homepage = 'https://github.com/cschiewek/devise_ldap_norm'
   s.description = s.summary
   s.authors = ['Curtis Schiewek', 'Daniel McNevin', 'Steven Xu']
   s.license = 'MIT'
