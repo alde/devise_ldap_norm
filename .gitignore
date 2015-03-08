@@ -9,3 +9,5 @@ test/rails_app/tmp
 pkg/*
 *.gem
 .idea
+coverage
+

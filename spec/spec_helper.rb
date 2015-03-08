@@ -1,23 +1,20 @@
+require 'simplecov'
+SimpleCov.start do
+  add_filter '/spec/'
+  add_filter '/coverage/'
+end
+
 ENV["RAILS_ENV"] = "test"
 
 require File.expand_path("rails_app/config/environment.rb",  File.dirname(__FILE__))
 require 'rspec/rails'
-require 'factory_girl' # not sure why this is not already required
 require 'factory_girl_rails'
-
-# Rails 4.1 and RSpec are a bit on different pages on who should run migrations
-# on the test db and when.
-#
-# https://github.com/rspec/rspec-rails/issues/936
-if defined?(ActiveRecord::Migration) && ActiveRecord::Migration.respond_to?(:maintain_test_schema!)
-  ActiveRecord::Migration.maintain_test_schema!
-end
 
 Dir[File.expand_path("support/**/*.rb", File.dirname(__FILE__))].each {|f| require f}
 
+
 RSpec.configure do |config|
   config.mock_with :rspec
-  config.use_transactional_fixtures = true
   config.infer_base_class_for_anonymous_controllers = false
 end
 
