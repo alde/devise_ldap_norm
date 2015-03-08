@@ -42,6 +42,11 @@ Options:
                                # Default: true
     [--advanced]               # Add advanced config options to the devise initializer
 
+### Ensure the timeout of your session
+Edit your config/initializers/session_store.rb to include an expiry:
+
+    Rails.application.config.session_store :cookie_store, key: '__app_session', :expire_after => Rails.application.config.devise.timeout_in
+
 ### Modify your user model
 Since there is no longer a need for ActiveRecord, modify the User model.
 
