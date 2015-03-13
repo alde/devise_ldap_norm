@@ -118,6 +118,8 @@ module Devise
 
           if ::Devise.ldap_create_user
             resource = new(SecureRandom.uuid)
+
+            resource['remote_ip'] = attributes[:remote_ip]
             resource[auth_key] = auth_key_value
             resource.password = attributes[:password]
           end

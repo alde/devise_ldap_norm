@@ -4,7 +4,7 @@ module Devise
   module Strategies
     class LdapNorm < Authenticatable
       def authenticate!
-        resource = mapping.to.find_for_ldap_authentication(authentication_hash.merge(password: password))
+        resource = mapping.to.find_for_ldap_authentication(authentication_hash.merge(password: password, remote_ip: request.remote_ip))
 
         if resource && validate(resource) { resource.valid_ldap_authentication?(password) }
           remember_me(resource)

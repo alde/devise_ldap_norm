@@ -47,6 +47,24 @@ Edit your config/initializers/session_store.rb to include an expiry:
 
     Rails.application.config.session_store :cookie_store, key: '__app_session', :expire_after => Rails.application.config.devise.timeout_in
 
+### Protect from session hijacking
+Add a before_action validation to ApplicationController:
+
+Sample:
+
+    class ApplicationController < ActionController::Base
+
+      before_action :validate_origin
+
+      def validate_origin
+        if current_user && current_user.remote_ip != request.remote_ip
+            Rails.logger.warn("Remote IP for #{current_user.email} does not match session data.")
+            session.destroy
+        end
+      end
+    end
+
+
 ### Modify your user model
 Since there is no longer a need for ActiveRecord, modify the User model.
 
@@ -73,6 +91,10 @@ Sample model:
 
       def [](key)
         @data[key]
+      end
+
+      def remote_ip
+        @data['remote_ip']
       end
 
       def email
