@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.version  = DeviseLdapNorm::VERSION.dup
   s.platform = Gem::Platform::RUBY
   s.summary  = 'Devise extension to allow authentication via LDAP'
-  s.email = 'curtis.schiewek@gmail.com'
+  s.email = 'rickard@alde.nu'
   s.homepage = 'https://github.com/alde/devise_ldap_norm'
   s.description = s.summary
   s.authors = ['Rickard Dybeck', 'Curtis Schiewek', 'Daniel McNevin', 'Steven Xu']

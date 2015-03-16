@@ -116,7 +116,7 @@ module Devise
         end
 
         # array bisect to determine if any of the groups in groups is allowed access
-        (memberships & allowed_groups).length > 0
+        (memberships & @allowed_groups).length > 0
       end
 
       def in_required_groups?
