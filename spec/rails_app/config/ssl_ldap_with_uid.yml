@@ -3,10 +3,11 @@ authorizations: &AUTHORIZATIONS
   group_base: ou=groups,dc=test,dc=com
   required_groups:
     - cn=admins,ou=groups,dc=test,dc=com
+  allowed_groups: "test_group_one test_group_two"
   require_attribute:
     objectClass: inetOrgPerson
     authorizationRole: blogAdmin
-    
+
 test:
   host: localhost
   port: 3389

@@ -5,10 +5,11 @@ authorizations: &AUTHORIZATIONS
   group_base: <%= "ou=groups,#{@base}" %>
   required_groups:
     - cn=admins,<%= "ou=groups,#{@base}" %>
+  allowed_groups: "test_group_one test_group_two"
   require_attribute:
     objectClass: inetOrgPerson
     authorizationRole: blogAdmin
-    
+
 test: &TEST
   host: <%= "localhost" %>
   port: 3389
@@ -18,6 +19,6 @@ test: &TEST
   admin_password: secret
   ssl: true
   <<: *AUTHORIZATIONS
-  
+
 development:
   <<: *TEST
