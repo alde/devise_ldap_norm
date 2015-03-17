@@ -100,9 +100,7 @@ module Devise
       module ClassMethods
 
         def serialize_from_session(id, data={})
-          resource = self.new(id)
-          resource.data = data
-          resource
+          self.new(id, data)
         end
 
         def serialize_into_session(record)
@@ -114,20 +112,14 @@ module Devise
           return nil unless attributes[auth_key].present?
 
           auth_key_value = (self.case_insensitive_keys || []).include?(auth_key) ? attributes[auth_key].downcase : attributes[auth_key]
-	  auth_key_value = (self.strip_whitespace_keys || []).include?(auth_key) ? auth_key_value.strip : auth_key_value
+	        auth_key_value = (self.strip_whitespace_keys || []).include?(auth_key) ? auth_key_value.strip : auth_key_value
+          auth_key_value.gsub! /[^-\w.@]/i, ''
 
-          if ::Devise.ldap_create_user
-            resource = new(SecureRandom.uuid)
+          resource = new(SecureRandom.uuid)
 
-            resource['remote_ip'] = attributes[:remote_ip]
-            resource[auth_key] = auth_key_value
-            resource.password = attributes[:password]
-          end
-
-          if resource && resource.new_record? && resource.valid_ldap_authentication?(attributes[:password])
-            resource.ldap_before_save if resource.respond_to?(:ldap_before_save)
-            resource.save!
-          end
+          resource['remote_ip'] = attributes[:remote_ip]
+          resource[auth_key] = auth_key_value
+          resource.password = attributes[:password]
 
           resource
         end

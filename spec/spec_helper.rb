@@ -1,3 +1,9 @@
+require 'simplecov'
+SimpleCov.start do
+  add_filter '/spec/'
+  add_filter '/coverage/'
+end
+
 ENV["RAILS_ENV"] = "test"
 
 require File.expand_path("rails_app/config/environment.rb",  File.dirname(__FILE__))
