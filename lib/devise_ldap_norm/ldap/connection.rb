@@ -10,27 +10,30 @@ module Devise
           ldap_config = YAML.load(ERB.new(File.read(::Devise.ldap_config || "#{Rails.root}/config/ldap.yml")).result)[Rails.env]
         end
         ldap_options = params
-        ldap_config["ssl"] = :simple_tls if ldap_config["ssl"] === true
-        ldap_options[:encryption] = ldap_config["ssl"].to_sym if ldap_config["ssl"]
+        ldap_config['ssl'] = :simple_tls if ldap_config['ssl'] === true
+        ldap_options[:encryption] = ldap_config['ssl'].to_sym if ldap_config['ssl']
 
         @ldap = Net::LDAP.new(ldap_options)
-        @ldap.host = ldap_config["host"]
-        @ldap.port = ldap_config["port"]
-        @ldap.base = ldap_config["base"]
-        @attribute = ldap_config["attribute"]
-        @allow_unauthenticated_bind = ldap_config["allow_unauthenticated_bind"]
+        @ldap.host = ldap_config['host']
+        @ldap.port = ldap_config['port']
+        @ldap.base = ldap_config['base']
+        @attribute = ldap_config['attribute']
+        @allow_unauthenticated_bind = ldap_config['allow_unauthenticated_bind']
 
         @ldap_auth_username_builder = params[:ldap_auth_username_builder]
 
-        @group_base = ldap_config["group_base"]
-        @check_group_membership = ldap_config.has_key?("check_group_membership") ? ldap_config["check_group_membership"] : ::Devise.ldap_check_group_membership
-        @allowed_groups = ldap_config["allowed_groups"].split(' ')
+        @group_base = ldap_config['group_base']
+        @check_group_membership = ldap_config.has_key?('check_group_membership') ? ldap_config['check_group_membership'] : ::Devise.ldap_check_group_membership
+
+        @allowed_groups = ldap_config['allowed_groups'] || []
+        @allowed_groups = @allowed_groups.split(' ') if @allowed_groups.is_a? ::String
+
         @required_attributes = ldap_config["require_attribute"]
 
         @ldap.auth ldap_config["admin_user"], ldap_config["admin_password"] if params[:admin]
         @ldap.auth params[:login], params[:password] if ldap_config["admin_as_user"]
 
-        @login = params[:login].gsub(/[^-\w.]/i, '')
+        @login = (params[:login] || '').gsub(/[^-\w.]/i, '')
         @password = params[:password]
         @new_password = params[:new_password]
       end
