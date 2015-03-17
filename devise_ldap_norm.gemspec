@@ -1,4 +1,3 @@
-# -*- encoding: utf-8 -*-
 $:.push File.expand_path("../lib", __FILE__)
 require "devise_ldap_norm/version"
 
@@ -18,8 +17,8 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 
-  s.add_dependency('devise')
-  s.add_dependency('net-ldap')
+  s.add_dependency 'devise'
+  s.add_dependency 'net-ldap'
 
   s.add_development_dependency 'rake', '>= 0.9'
   s.add_development_dependency 'rdoc', '>= 3'

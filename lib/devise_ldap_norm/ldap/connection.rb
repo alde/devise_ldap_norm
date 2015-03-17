@@ -33,7 +33,7 @@ module Devise
         @ldap.auth ldap_config["admin_user"], ldap_config["admin_password"] if params[:admin]
         @ldap.auth params[:login], params[:password] if ldap_config["admin_as_user"]
 
-        @login = (params[:login] || '').gsub(/[^-\w.]/i, '')
+        @login = (params[:login] || '').gsub(/[^-\w.@]/i, '')
         @password = params[:password]
         @new_password = params[:new_password]
       end
